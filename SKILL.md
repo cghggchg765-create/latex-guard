@@ -1,4 +1,4 @@
-# LaTeX 编译防错与表格排版最佳实践
+# LaTeX Guard — LaTeX 编译防错与排版质量守护技能
 
 ## 技能描述
 
@@ -6,7 +6,7 @@ NEU-Thesis LaTeX 编译防错指南。覆盖3大类常见编译错误的快速�
 
 **触发条件**：任何涉及 .tex 文件编写、LaTeX 编译、表格制作、xelatex 命令执行、bibtex 引用处理的场景。关键词包括："编译论文"、"LaTeX报错"、"表格溢出"、"xelatex"、"tex文件"、"bibtex"、"Extra alignment"、"Overfull"、"Float too large"。
 
-**默认模板路径**：`F:\deskop\NEU-Thesis-main` (东北大学学位论文通用模板)
+**默认模板路径**：你的NEU-Thesis模板根目录 (东北大学学位论文通用模板)
 
 ---
 
@@ -212,7 +212,7 @@ NEU-Thesis LaTeX 编译防错指南。覆盖3大类常见编译错误的快速�
 ### 3.1 完整编译链（4步）
 
 ```bash
-cd F:\deskop\NEU-Thesis-main
+cd <你的NEU-Thesis模板目录>
 xelatex -interaction=nonstopmode Thesis.tex    # 第1步：生成 .aux 文件
 bibtex Thesis                                   # 第2步：生成 .bbl 引用数据
 xelatex -interaction=nonstopmode Thesis.tex    # 第3步：解析引用
@@ -250,7 +250,7 @@ rg "Warning.*undefined" Thesis.log
 ## 四、NEU-Thesis 模板结构速查
 
 ```
-F:\deskop\NEU-Thesis-main/
+<你的NEU-Thesis模板目录>/
 ├── Thesis.tex          ← 主入口（不要改结构和选项）
 ├── Style/
 │   ├── neuthesis.cls   ← 文档类（禁止修改）
@@ -479,7 +479,7 @@ F:\deskop\NEU-Thesis-main/
 
 ```powershell
 # check_latex_quality.ps1
-# 放到 F:\deskop\NEU-Thesis-main 目录，编译后运行
+# 放到你的NEU-Thesis模板根目录，编译后运行
 
 Write-Host "=== LaTeX 排版质量扫描 ===" -ForegroundColor Cyan
 
