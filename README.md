@@ -1,6 +1,6 @@
 # LaTeX Guard - LaTeX 编译防错与排版质量守护技能
 
-[![GitHub stars](https://img.shields.io/github/stars/qweqwe21321/latex-guard)](https://github.com/qweqwe21321/latex-guard)
+[![GitHub stars](https://img.shields.io/github/stars/cghggchg765-create/latex-guard)](https://github.com/cghggchg765-create/latex-guard)
 
 ## 简介
 
@@ -33,4 +33,4 @@ MIT License
 
 ## 作者
 
-GitHub: [@qweqwe21321](https://github.com/qweqwe21321)
+GitHub: [@cghggchg765-create](https://github.com/cghggchg765-create)
