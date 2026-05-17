@@ -1,16 +1,17 @@
+---
+name: latex-guard
+description: LaTeX 编译防错与排版质量守护技能。专为东北大学学位论文模板(NEU-Thesis)设计，但适用于任何中文学位论文LaTeX模板。提供7类常见编译错误的快速诊断修复、表格排版规范、标准编译流程、12类PDF排版质量检测清单、编译后强制验证流程。关键词触发："编译论文"、"LaTeX报错"、"表格溢出"、"xelatex"、"tex文件"、"bibtex"、"Extra alignment"、"Overfull"、"Float too large"、任何涉及.tex文件编译的场景。
+---
+
 # LaTeX Guard — LaTeX 编译防错与排版质量守护技能
 
-## 技能描述
+## 技能触发
 
-NEU-Thesis LaTeX 编译防错指南。覆盖3大类常见编译错误的快速诊断与修复方案、表格排版策略速查、标准编译流程、模板使用规范，以及自我完善机制。
-
-**触发条件**：任何涉及 .tex 文件编写、LaTeX 编译、表格制作、xelatex 命令执行、bibtex 引用处理的场景。关键词包括："编译论文"、"LaTeX报错"、"表格溢出"、"xelatex"、"tex文件"、"bibtex"、"Extra alignment"、"Overfull"、"Float too large"。
-
-**默认模板路径**：你的NEU-Thesis模板根目录 (东北大学学位论文通用模板)
+任何涉及 .tex 文件编写、LaTeX 编译、表格制作、xelatex 命令执行、bibtex 引用处理的场景均触发本技能。默认面向 NEU-Thesis 模板，但诊断方法同样适用于其他中文学位论文模板。
 
 ---
 
-## 一、三大类常见编译错误
+## 一、七大类常见编译错误
 
 ### 1.1 "Extra alignment tab has been changed to \cr."
 
@@ -40,33 +41,26 @@ NEU-Thesis LaTeX 编译防错指南。覆盖3大类常见编译错误的快速�
 | 超长表格 | 跨页表格 | `\begin{longtable}{...}...\end{longtable}` |
 | 附录超大表 | 缩放 + 横向 | `sidewaystable` 内嵌 `\tablefit` |
 
-### 1.3 图表与对应文字跨页（图表跑了，文字留在上页）
+### 1.3 图表与对应文字跨页
 
 **含义**：浮动体（table/figure）飘到了下一页，和描述它的文字分开了。
 
-**原因**：LaTeX 浮动体默认自由漂，`[!htbp]` 只是建议。
+**原因**：LaTeX 浮动体默认自由漂移，`[!htbp]` 只是建议。
 
 **修复三阶梯**：
 
 | 方案 | 命令 | 适用场景 |
 |------|------|---------|
-| 强制就地（首选） | `\begin{table}[H]` | 图表必须紧跟在文字后面，不飘 |
-| 浮动屏障 | `\FloatBarrier` | 该位置之前的所有浮动都必须落位 |
+| 强制就地（首选） | `\begin{table}[H]` | 图表紧跟在文字后面，不飘 |
+| 浮动屏障 | `\FloatBarrier` | 该位置之前所有浮动都必须落位 |
 | 缩小浮动体 | `\resizebox{\textheight}{!}{...}` | 浮动体高度超过页面剩余空间 |
 
 **用法**：
 ```latex
 \usepackage{float}          % 放入 Style/artratex.sty
 \usepackage{placeins}       % 提供 \FloatBarrier
-
-% 方式一：H 强制锁定
-\begin{table}[H]
-  \centering
-  ...
-\end{table}
-
-% 方式二：在需要锁定浮动的位置插入
-\FloatBarrier
+\begin{table}[H]\centering ... \end{table}   % H 强制锁定
+\FloatBarrier                                % 浮动屏障
 ```
 
 ### 1.4 公式与变量解释被分页切开
@@ -84,10 +78,9 @@ NEU-Thesis LaTeX 编译防错指南。覆盖3大类常见编译错误的快速�
 \end{minipage}
 ```
 
-如果公式太多且确实无法避免跨页，至少确保公式编号在同一页，用 `\nopagebreak[4]` 在公式后：
+公式太多无法避免跨页时，用 `\nopagebreak[4]` 确保编号在同一页：
 ```latex
-\end{equation}
-\nopagebreak[4]     % 强烈建议此处不要分页
+\end{equation}\nopagebreak[4]   % 强烈建议此处不分页
 其中 $x'_{ij}$...
 ```
 
@@ -98,36 +91,25 @@ NEU-Thesis LaTeX 编译防错指南。覆盖3大类常见编译错误的快速�
 **修复**：在 Thesis.tex 导言区（`\begin{document}` 之前）添加：
 
 ```latex
-% 孤行控制
-\clubpenalty=10000      % 禁止段首孤行（页底只留段首一行）
-\widowpenalty=10000     % 禁止段尾孤行（页顶只留段尾一行）
-\raggedbottom           % 允许页面底部留白，避免强行拉伸产生孤行
+\clubpenalty=10000      % 禁止段首孤行
+\widowpenalty=10000     % 禁止段尾孤行
+\raggedbottom           % 允许底部留白，避免拉伸产生孤行
 ```
 
-**针对单个段落的手动修复**：
-```latex
-% 在段落末尾加 \looseness=-1 让 LaTeX 尝试收紧一行
-正文内容...最后几个字。\looseness=-1
-```
+**单个段落手动修复**：段尾加 `\looseness=-1` 让 LaTeX 尝试收紧一行。
 
 ### 1.6 章节间的多余空白页
 
-**含义**：新章节总是从奇数页（右页）开始，如果上一章在奇数页结束，中间自动插入空白页。
+**含义**：新章从奇数页（右页）开始，上一章在奇数页结束时自动插入空白页。
 
-**原因**：论文模板设定了 `openright`（这是学位论文的正式规范）。
-
-**两种处理方式**：
+**原因**：模板设定了 `openright`（学位论文正式规范）。
 
 | 方案 | 命令 | 适用 |
 |------|------|------|
 | 符合规范（保留） | 不修改 | 正式提交版 |
 | 消除空白页 | `\let\cleardoublepage\clearpage` | 草稿/审阅版 |
 
-**消除空白页的具体操作**（仅用于工作草稿）：
-在 Thesis.tex 的 `\begin{document}` 之前插入：
-```latex
-\let\cleardoublepage\clearpage
-```
+消除空白页操作（仅工作草稿）：在 `\begin{document}` 前插入 `\let\cleardoublepage\clearpage`。
 
 ### 1.7 "Undefined citation" / 引用显示 "[?]"
 
@@ -147,11 +129,8 @@ NEU-Thesis LaTeX 编译防错指南。覆盖3大类常见编译错误的快速�
 ### 2.1 表格标准模板
 
 ```latex
-% 标准表格模板（6-8列宽表用\tablefit）
-\begin{table}[!htbp]
-  \centering\zihao{5}
-  \caption{表格标题}
-  \label{tab:唯一标识}
+\begin{table}[!htbp]\centering\zihao{5}
+  \caption{表格标题}\label{tab:唯一标识}
   \tablefit{
     \begin{tabular}{cccccccc}
       \toprule
@@ -177,21 +156,12 @@ NEU-Thesis LaTeX 编译防错指南。覆盖3大类常见编译错误的快速�
 ### 2.3 表格注释和脚注
 
 ```latex
-\begin{table}[!htbp]
-  \centering\zihao{5}
-  \caption{表格标题}
-  \label{tab:xxx}
-  \tablefit{
-    \begin{tabular}{cccccc}
-      \toprule
-      列1 & 列2 & 列3 \\
-      \midrule
-      数据 \\
-      \bottomrule
-    \end{tabular}
-  }
-  \vspace{2pt}
-  \tablefootnotesize
+\begin{table}[!htbp]\centering\zihao{5}
+  \caption{表格标题}\label{tab:xxx}
+  \tablefit{\begin{tabular}{cccccc}
+      \toprule 列1 & 列2 & 列3 \\ \midrule 数据 \\ \bottomrule
+  \end{tabular}}
+  \vspace{2pt}\tablefootnotesize
   注：表格脚注内容，说明数据来源、缩写等。
 \end{table}
 ```
@@ -231,18 +201,50 @@ xelatex -interaction=nonstopmode Thesis.tex
 - **警告可忽略**：`Overfull`、`Underfull`、`Font Warning` 通常不影响结果
 - **必须修复**：`^!` 开头的 Error，`Float too large`，引用显示 `[?]`
 
-### 3.4 诊断命令
+### 3.4 🔴 编译后强制验证（重要！）
+
+每次编译完成后**必须**执行以下步骤，漏一步即为严重错误：
+
+#### 步骤一：验证 PDF 输出位置
+
+编译完成后，立即确认 PDF **确实生成在项目目录下**：
 
 ```bash
-# 统计 Error 数量
-rg "^!" Thesis.log
+ls -la "Thesis.pdf"
+# 或 PowerShell: Get-Item "Thesis.pdf" | Select FullName, Length
+```
 
-# 统计 Overfull 数量（关注表格相关）
-rg "Overfull.*hbox" Thesis.log | rg "pt" 
+- ⚠️ **经典错误**：xelatex 工作目录是模板默认路径，但实际项目在其他目录。编译前务必 `cd` 到项目根目录，编译后验证 PDF 在该目录下。
+- 如果 PDF 生成到了错误路径，立即拷贝到正确位置。
 
-# 查看引用问题
-rg "Warning.*Citation" Thesis.log
-rg "Warning.*undefined" Thesis.log
+#### 步骤二：重命名为论文标题
+
+PDF **不得**以 `Thesis.pdf` 交付，必须重命名：
+
+```bash
+mv Thesis.pdf "论文完整主标题.pdf"
+# Windows: Rename-Item "Thesis.pdf" "论文完整主标题.pdf"
+```
+
+- 标题从 `Tex/Frontpages.tex` 的 `\thesistitle{}` 字段获取
+- 使用中文主标题，不含副标题、不含英文翻译
+
+#### 步骤三：推送绝对路径给用户
+
+必须向用户输出 PDF 的完整绝对路径：
+
+```
+📄 PDF 已生成：<项目目录>/<论文标题>.pdf（XX 页，X.XX MB）
+```
+
+- 使用完整绝对路径，附带页数和文件大小，不可省略。
+
+#### 诊断命令索引
+
+```bash
+rg "^!" Thesis.log                        # 统计 Error
+rg "Overfull.*hbox" Thesis.log | rg "pt"  # 统计表格溢出
+rg "Warning.*Citation" Thesis.log         # 查看引用问题
 ```
 
 ---
@@ -257,7 +259,7 @@ rg "Warning.*undefined" Thesis.log
 │   ├── artratex.sty    ← 样式宏包（可添加 \RequirePackage）
 │   └── artracom.sty    ← 用户自定义宏（可自由添加命令）
 ├── Tex/
-│   ├── Frontpages.tex  ← 封面字段（填信息，不改结构）
+│   ├── Frontpages.tex  ← 封面字段
 │   ├── Abstract.tex    ← 中英文摘要
 │   ├── Mainmatter.tex  ← 引用章节输入文件
 │   ├── Backmatter.tex  ← 致谢 + 附录
@@ -275,7 +277,7 @@ rg "Warning.*undefined" Thesis.log
 |-----------|-----------|
 | `Style/artracom.sty` 添加新命令 | `Thesis.tex` 的 `\documentclass` 和选项 |
 | `Style/artratex.sty` 添加 `\RequirePackage` | `neuthesis.cls` 的格式定义 |
-| `Tex/` 下各章节内容文件 | 页面布局、字体规范、编译引擎（必须用 xelatex） |
+| `Tex/` 下各章节内容文件 | 页面布局、字体规范、页码格式 |
 | `Img/` 存放新图片 | `Frontpages.tex` 的字段结构 |
 | `Biblio/ref.bib` 增删条目 | 编译引擎（必须用 xelatex） |
 
@@ -306,11 +308,22 @@ rg "Warning.*undefined" Thesis.log
 3. **巨型表格(Float too large)**：`\resizebox{\textwidth}{!}` 包裹整个 tabular
 4. **引用缺失(Undefined citation)**：完整4步编译链是最可靠方案
 5. **中文乱码**：必须用 `xelatex`，不要用 `pdflatex`
-6. **空白页**：模板设计为每章从奇数页开始，不修改此行为
+6. **空白页**：模板 `openright` 规范；草稿用 `\let\cleardoublepage\clearpage`
 7. **图表跨页**：浮动体用 `[H]` 强制锁定位置，或用 `\FloatBarrier` 屏障
 8. **公式与解释分离**：用 `minipage` 捆在一起，或用 `\nopagebreak[4]` 阻断开裂
 9. **段尾孤行**：导言区设 `\clubpenalty=10000` + `\widowpenalty=10000` + `\raggedbottom`
-10. **章节空白页**：草稿阶段用 `\let\cleardoublepage\clearpage` 消除；正式提交恢复 `openright`
+10. **三线表缺失**：只用 `\toprule` `\midrule` `\bottomrule`
+11. **表格跨页割裂**：用 `longtable` + `\endhead` 重复表头
+12. **英文期刊名未斜体**：BibTeX 的 `journal` 字段自动处理
+13. **单位与数字无空格**：用 `\Unit{cm}` 宏
+14. **公式变量未斜体**：变量用 `$x$`，单位用 `\mathrm{m}`
+15. **图题分离**：`\begin{figure}[H]` 锁定图片位置
+16. **图片模糊**：导出时设 `dpi=300`
+17. **占位符残留**：编译后用脚本扫描 `(作者姓名)` 等关键字
+18. **目录页码不匹配**：必须2次 xelatex 解析交叉引用
+19. **PDF 路径错误**：编译前 cd 到项目根目录；编译后 verify PDF 落在项目目录下
+20. **PDF 文件名不规范**：输出文件必须重命名为论文中文标题，不能保留 "Thesis.pdf"
+21. **编译后未告知用户路径**：完成编译和重命名后，必须推送 PDF 的完整绝对路径 + 页数 + 文件大小
 
 ---
 
@@ -332,202 +345,123 @@ rg "Warning.*undefined" Thesis.log
 
 ## 七、PDF 排版质量全面检测清单
 
-论文编译完成后，按以下12大类逐项检查生成的 PDF。每一类均给出 **grep/肉眼检查要点** 和 **LaTeX 修复方案**。
-
----
+论文编译完成后，按以下12大类逐项检查生成的 PDF。
 
 ### 7.1 封面与题名页
 
-| 检查点 | AI 检测关键词 | LaTeX 修复 |
-|-------|-------------|-----------|
-| 学位类型错误 | 硕士论文标"博士学位论文" | `Tex/Frontpages.tex` 中 `\thesislevel{}` 字段 |
-| 校名断字 | 大写字母间空格：N O R T H E A S T | 校名用 `\textbf` 包裹，不加空格 |
-| 标题断行混乱 | 标题中多余空格、重复 | 用 `\\` 精确控制换行，不用连续空格 |
-| 信息缺失 | 学院/专业/日期为占位符 `(xx)` | 逐字段填入真实内容 |
-
----
+| 检查点 | 关键词 | 修复 |
+|-------|--------|------|
+| 学位类型错误 | 硕士标"博士" | `Tex/Frontpages.tex` 中 `\thesislevel{}` |
+| 校名断字 | N O R T H E A S T | 校名用 `\textbf` 包裹 |
+| 标题断行混乱 | 多余空格、重复 | 用 `\\` 精确控制换行 |
+| 信息缺失 | `(xx)` 占位符 | 逐字段填入真实内容 |
 
 ### 7.2 页码与页眉
 
-| 检查点 | AI 检测关键词 | LaTeX 修复 |
-|-------|-------------|-----------|
-| 页眉重复叠加 |"东北大学博士学位论文"重复N次 | 检查 `neuthesis.cls` 中 `\pagestyle` 定义 |
-| 页码混用 | 前言用阿拉伯数字、正文用罗马数字 | 模板已处理：`\frontmatter`(罗马) `\mainmatter`(阿拉伯) |
-| 页码偏移 | I,II,III,IV 重复 | 检查是否有额外的 `\pagenumbering{}` 调用 |
-| 目录页码不匹配 | 目录标页15，实际在17页 | 必须运行 2 次 xelatex 解析交叉引用 |
-
----
+| 检查点 | 关键词 | 修复 |
+|-------|--------|------|
+| 页眉重复叠加 | 标题重复N次 | 检查 `\pagestyle` 定义 |
+| 页码混用 | 前言阿拉伯/正文罗马 | `\frontmatter`(罗马) `\mainmatter`(阿拉伯) |
+| 页码偏移 | I,II,III,IV 重复 | 删除多余 `\pagenumbering{}` |
+| 目录页码不匹配 | 标注与实际不符 | 必须 2 次 xelatex |
 
 ### 7.3 目录结构
 
-| 检查点 | AI 检测关键词 | LaTeX 修复 |
-|-------|-------------|-----------|
-| 章节编号错乱 | 5.3 出现在 5.1 前 | 检查 `\section` 顺序 |
-| 层级异常 | 三级标题缩进不对 | 确保 `\subsection` 嵌套在 `\section` 内 |
-| 引导点不齐 | 点线缺失或密度不对 | 模板 `\tableofcontents` 自动生成，不需改 |
-| 图表索引缺失 | 图/表编号后无标题文字 | 每个 `\caption{}` 必须有文字内容 |
-
----
+| 检查点 | 关键词 | 修复 |
+|-------|--------|------|
+| 章节编号错乱 | 5.3 在 5.1 前 | 检查 `\section` 顺序 |
+| 层级异常 | 三级标题缩进错 | `\subsection` 嵌套在 `\section` 内 |
+| 引导点不齐 | 点线缺失 | 模板自动生成，不需改 |
+| 图表索引缺失 | 图号后无标题 | 每个 `\caption{}` 有文字内容 |
 
 ### 7.4 正文结构
 
-| 检查点 | AI 检测关键词 | LaTeX 修复 |
-|-------|-------------|-----------|
-| 标题重复 | 第1章 引言 出现多次 | 删除重复的 `\chapter{}` |
-| 层级混乱 | 3.2.1 前无 3.2 | `\subsubsection` 必须在 `\subsection` 内 |
-| 段首空格 | 全角/半角空格混用 | LaTeX 自动处理缩进，不要在段首手动加空格 |
-| 多余空行 | 两个连续空行 | 删除 `Tex/` 文件中多余空行 |
-
----
+| 检查点 | 关键词 | 修复 |
+|-------|--------|------|
+| 标题重复 | 同一章出现多次 | 删除重复 `\chapter{}` |
+| 层级混乱 | 3.2.1 缺 3.2 | `\subsubsection` 在 `\subsection` 内 |
+| 段首空格 | 空格混用 | LaTeX 自动缩进，不手动加 |
+| 多余空行 | 连续空行 | 删除 `.tex` 中多余空行 |
 
 ### 7.5 公式与数学符号
 
-| 检查点 | AI 检测关键词 | LaTeX 修复 |
-|-------|-------------|-----------|
-| 上下标错误 | `cm2` 应为 `cm²` | 用 `cm$^2$` 或 `cm\textsuperscript{2}` |
-| 变量未斜体 | 正文中 `x` 应为 $x$ | 变量名用 `$x$` 包裹 |
-| 正斜体混排 | 单位 `m` 应为正体 | 用 `\Unit{m}` 宏 或 `\mathrm{m}` |
-| 编号不对齐 | 公式编号偏左或居中 | 用 `\begin{equation}` 自动右对齐编号 |
-| 公式引用残缺 | `[3]` 写成 `(3)` | 公式用 `\label{eq:xxx}` + `\eqref{eq:xxx}` 引用 |
-
----
+| 检查点 | 关键词 | 修复 |
+|-------|--------|------|
+| 上下标错误 | cm2 应为 cm² | 用 `cm$^2$` / `\textsuperscript{2}` |
+| 变量未斜体 | x 应为 $x$ | 变量用 `$x$` 包裹 |
+| 正斜体混排 | 单位 m 需正体 | `\Unit{m}` / `\mathrm{m}` |
+| 编号不对齐 | 编号偏离 | 用 `\begin{equation}` |
+| 公式引用残缺 | `[3]` 写成 `(3)` | `\label{eq:xxx}` + `\eqref{eq:xxx}` |
 
 ### 7.6 表格排版
 
-| 检查点 | AI 检测关键词 | LaTeX 修复 |
-|-------|-------------|-----------|
-| 三线表缺失 | 表格有竖线或多条横线 | 只用 `\toprule` `\midrule` `\bottomrule` |
-| 跨页割裂 | 表格下半截在下一页、无表头 | 用 `longtable` + `\endhead` 重复表头 |
-| 表题分离 | 表题和表格不在同一页 | 用 `\begin{table}[H]` 锁定 |
-| 列宽不均 | 文字溢出单元格或过空 | 用 `p{3cm}` 固定列宽 |
-| 表注缺失 | 无数据来源、无缩写说明 | `\tablefootnotesize 注：...` |
-
----
+| 检查点 | 关键词 | 修复 |
+|-------|--------|------|
+| 三线表缺失 | 有竖线/多余横线 | 只用 `\toprule` `\midrule` `\bottomrule` |
+| 跨页割裂 | 无表头续页 | `longtable` + `\endhead` |
+| 表题分离 | 不在同一页 | `\begin{table}[H]` 锁定 |
+| 列宽不均 | 溢出或过空 | 用 `p{3cm}` 固定列宽 |
+| 表注缺失 | 无数据来源 | `\tablefootnotesize 注：...` |
 
 ### 7.7 图片与插图
 
-| 检查点 | AI 检测关键词 | LaTeX 修复 |
-|-------|-------------|-----------|
-| 图题缺失 | 图号后无文字 | 每个 `\caption{}` 必须填标题 |
-| 图号不连续 | 图3.1→图3.3 缺图3.2 | 检查 `\label` 和引用 |
-| 图题分离 | 图和图题跨页 | `\begin{figure}[H]` 锁定 |
-| 分辨率低 | 图片模糊、锯齿 | 导出图时设 `dpi=300`，用 PNG/PDF 格式 |
-| 引用格式错误 | `图2-1` 应为 `图2.1` | 用 `\ref{fig:xxx}` 自动生成正确格式 |
-
----
+| 检查点 | 关键词 | 修复 |
+|-------|--------|------|
+| 图题缺失 | 图号后无文字 | 每个 `\caption{}` 填标题 |
+| 图号不连续 | 缺图3.2 | 检查 `\label` 和引用 |
+| 图题分离 | 图题跨页 | `\begin{figure}[H]` |
+| 分辨率低 | 模糊/锯齿 | 导出 dpi=300，PNG/PDF |
+| 引用格式错误 | 图2-1 → 图2.1 | `\ref{fig:xxx}` |
 
 ### 7.8 文字与标点符号
 
-| 检查点 | AI 检测关键词 | LaTeX 修复 |
-|-------|-------------|-----------|
-| 全角半角混排 | 中文中夹英文标点 `,.:;` | 中文后用全角 `，。：；` |
-| 引号不配对 | `"xxx"` 应为 `"xxx"` | 中文引号用 `\zihaodian` 或直接输入 `""` |
-| 破折号错误 | `--` 代 `—` | 用 `——`（两字线）或 `---`（英文破折号）|
-| 单位无空格 | `25cm` → `25 cm` | 用 `\Unit{cm}` 自动加半角空格 |
-| 特殊符号 | `℃` `%` `±` 排版错位 | 用 `$^\circ$C` `\%` `$\pm$` |
-
----
+| 检查点 | 关键词 | 修复 |
+|-------|--------|------|
+| 全角半角混排 | 中文夹英文标点 | 中文后用全角 `，。：；` |
+| 引号不配对 | `"xxx"` → `"xxx"` | 直接输入 `""` |
+| 破折号错误 | `--` 代 `—` | 用 `——` 或 `---` |
+| 单位无空格 | 25cm → 25 cm | `\Unit{cm}` |
+| 特殊符号 | ℃ % ± 错位 | `$^\circ$C` `\%` `$\pm$` |
 
 ### 7.9 参考文献与引用
 
-| 检查点 | AI 检测关键词 | LaTeX 修复 |
-|-------|-------------|-----------|
-| 上标位置 | 正文[1] 应为 正文$^{[1]}$ | 用 `\cite{}` 自动生成上标 |
-| 序号不连续 | [1][2][5] 缺[3][4] | 检查 bib 文件条目完整性 |
-| 英文未斜体 | 期刊名应为斜体 | BibTeX 中 `journal` 字段自动处理 |
-| 条目不齐 | 悬挂缩进缺失 | `gbt7714-unsrt.bst` 自动处理 |
-| 格式不统一 | 中英文混排格式混乱 | 中英文分别用对应格式，`ref.bib` 统一管理 |
-
----
+| 检查点 | 关键词 | 修复 |
+|-------|--------|------|
+| 上标位置 | 正文[1] 应为上标 | `\cite{}` 自动上标 |
+| 序号不连续 | [1][2][5] | 检查 bib 条目完整性 |
+| 英文未斜体 | 期刊名正体 | BibTeX `journal` 自动处理 |
+| 条目不齐 | 悬挂缩进缺失 | `.bst` 自动处理 |
+| 格式不统一 | 中英文混排混乱 | `ref.bib` 统一管理 |
 
 ### 7.10 固定模版页
 
-| 检查点 | AI 检测关键词 | LaTeX 修复 |
-|-------|-------------|-----------|
-| 声明页污染 | 页眉出现在声明页 | 声明页用 `\thispagestyle{empty}` |
-| 摘要标题重复 |"摘 要"出现3次 | 删除多余的 `\chapter*{摘要}` |
-| 中英文不对应 | 中文摘要5段、英文3段 | 确保内容一一对应 |
-| 关键词格式 | 用逗号而非分号分隔 | 统一用 `；` 分隔关键词 |
-
----
+| 检查点 | 关键词 | 修复 |
+|-------|--------|------|
+| 声明页污染 | 页眉在声明页 | `\thispagestyle{empty}` |
+| 摘要标题重复 |"摘 要"×3 | 删除多余 `\chapter*{摘要}` |
+| 中英文不对应 | 段数不一致 | 确保一一对应 |
+| 关键词格式 | 逗号分隔 | 统一用 `；` |
 
 ### 7.11 格式统一性
 
-| 检查点 | AI 检测关键词 | LaTeX 修复 |
-|-------|-------------|-----------|
-| 字体混用 | 宋体黑体楷体随机出现 | 模板统一为宋体正文+黑体标题 |
-| 字号混乱 | 同级别标题字号不同 | `\chapter` `\section` `\subsection` 自动统一 |
-| 行距/段距 | 不同段落间距不一致 | 模板已设 `\linespread{}`，不需修改 |
-| 中英文间距 | 中英文间无空格或过大 | XeLaTeX 自动处理，不需额外加空格 |
-
----
+| 检查点 | 关键词 | 修复 |
+|-------|--------|------|
+| 字体混用 | 宋/黑/楷随机 | 宋体正文+黑体标题 |
+| 字号混乱 | 同级字数不同 | 模板自动统一 |
+| 行距/段距不一致 | 间距差异 | 模板 `\linespread{}` |
+| 中英文间距 | 无空格或过大 | XeLaTeX 自动处理 |
 
 ### 7.12 内容冗余与乱码
 
-| 检查点 | AI 检测关键词 | LaTeX 修复 |
-|-------|-------------|-----------|
-| 乱码字符 |"宝""男士""r 2置" | 删除或替换为正确中文 |
-| 占位符残留 |"(作者姓名)""(导师)" | 替换为真实信息 |
-| 代码残留 |"需安装networkx包""pip install" | 删除所有非论文内容 |
-| 重复段落 | 同一段出现2次 | 删除重复内容 |
+| 检查点 | 关键词 | 修复 |
+|-------|--------|------|
+| 乱码字符 |"宝""男士" | 替换为正确中文 |
+| 占位符残留 |"(作者姓名)" | 替换为真实信息 |
+| 代码残留 |"pip install" | 删除非论文内容 |
+| 重复段落 | 同一段×2 | 删除重复内容 |
 
 ---
 
-## 八、编译后一键排版检查脚本
+## 八、编译后一键排版检查
 
-将以下 PowerShell 脚本保存到模板根目录，编译后运行即可批量扫描常见排版问题：
-
-```powershell
-# check_latex_quality.ps1
-# 放到你的NEU-Thesis模板根目录，编译后运行
-
-Write-Host "=== LaTeX 排版质量扫描 ===" -ForegroundColor Cyan
-
-# 1. 检查占位符残留
-Write-Host "`n[1/5] 占位符检查..."
-rg -l "作者姓名|导师姓名|学号|学院名称" Thesis.pdf 2>$null
-if ($LASTEXITCODE -eq 0) { Write-Host "  ⚠ 发现占位符未替换!" -ForegroundColor Red }
-
-# 2. 检查编译 Error
-Write-Host "`n[2/5] 编译错误..."
-$errors = rg "^!" Thesis.log
-if ($errors) { Write-Host "  ❌ 发现 $($errors.Count) 个编译错误" -ForegroundColor Red }
-
-# 3. 检查引用未解析
-Write-Host "`n[3/5] 引用解析..."
-rg "Warning.*undefined" Thesis.log
-rg "Warning.*Citation.*undefined" Thesis.log
-
-# 4. 检查表格溢出
-Write-Host "`n[4/5] 表格溢出..."
-rg "Overfull.*hbox.*pt" Thesis.log | rg -v "(1\.|2\.|3\.|4\.|5\.|6\.|7\.|8\.|9\.)pt"
-
-# 5. 检查浮动体溢出
-Write-Host "`n[5/5] 浮动体过大..."
-rg "Float too large" Thesis.log
-
-Write-Host "`n=== 扫描完成 ===" -ForegroundColor Cyan
-```
-
----
-
-## 九、已累积的全部教训
-
-1. **列对齐错误**：数 `&` + 1 = 列数，两者必须匹配
-2. **宽表溢出**：`\tablefit` 缩放是最通用方案
-3. **巨型表格**：`\resizebox{\textwidth}{!}` 包裹整个 tabular
-4. **引用缺失**：完整4步编译链是最可靠方案
-5. **中文乱码**：必须用 `xelatex`，不要用 `pdflatex`
-6. **空白页**：模板 `openright` 规范；草稿用 `\let\cleardoublepage\clearpage`
-7. **图表跨页**：浮动体用 `[H]` 强制锁定位置
-8. **公式与解释分离**：用 `minipage` 捆在一起，或用 `\nopagebreak[4]` 阻断开裂
-9. **段尾孤行**：导言区设 `\clubpenalty=10000` + `\widowpenalty=10000` + `\raggedbottom`
-10. **三线表缺失**：只用 `\toprule` `\midrule` `\bottomrule`
-11. **表格跨页割裂**：用 `longtable` + `\endhead` 重复表头
-12. **英文期刊名未斜体**：BibTeX 的 `journal` 字段自动处理
-13. **单位与数字无空格**：用 `\Unit{cm}` 宏
-14. **公式变量未斜体**：变量用 `$x$`，单位用 `\mathrm{m}`
-15. **图题分离**：`\begin{figure}[H]` 锁定图片位置
-16. **图片模糊**：导出时设 `dpi=300`
-17. **占位符残留**：编译后用脚本扫描 `(作者姓名)` 等关键字
-18. **目录页码不匹配**：必须2次 xelatex 解析交叉引用
+将打包的 PowerShell 脚本（见 `scripts/check_latex_quality.ps1`）放到模板根目录，编译后运行即可批量扫描：占位符残留、编译 Error、引用未解析、表格溢出、浮动体过大。
